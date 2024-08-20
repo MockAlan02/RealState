@@ -1,0 +1,178 @@
+﻿@using RealState.Application.Enums
+@using RealState.Application.ViewModel.Favorite
+@using RealState.MVC.Helpers
+@using RealState.Application.QueryFilters
+@{
+    ViewData["Title"] = "Home Page";
+    List<PropertyViewModel> properties = ViewBag.Properties;
+    List<PropertyTypeViewModel> propertyTypes = ViewBag.PropertysTypes;
+    RoleTypes? role = ViewBag.Role as RoleTypes?;
+    List<FavoriteViewModel>? favorites = ViewBag.Favorites as List<FavoriteViewModel>;
+    PropertyQueryFilter propertyQueryFilter = ViewBag.Filter;
+}
+
+<div class="main-body">
+    <div class="header">
+        <div class="title">
+            <h1> RealState Dom</h1>
+            <div class="descripcion">
+                <p>Los mejores en romper precios</p>
+            </div>
+        </div>
+    </div>
+    <div class="body">
+        <div class="form">
+                <h3 class="mb-3">Search for a building</h3>
+            <form method="get" asp-controller="home" asp-action="index">
+
+                <div class="form-group">
+                    <input type="text" placeholder="Building Code" name="Code" class="form-control"
+                    value="@propertyQueryFilter.Code">
+                </div>
+                <div class="form-group row">
+                    <select id="inputState" name="PropertyTypeId" class="form-control">
+                            <option selected>Choose building type...</option>
+                           @{
+                               if(propertyTypes.Count > 0)
+                               {
+                                   foreach(var propertyType in propertyTypes)
+                                   {
+                                       if (propertyQueryFilter.PropertyTypeId == @propertyType.Id)
+                                       {
+                                            <option selected value="@propertyType.Id">@propertyType.Name</option>
+                                       }
+                                       else
+                                       {
+                                       <option value="@propertyType.Id">@propertyType.Name</option>
+                                       }
+                                   }
+                               }
+                           }
+                        </select>
+                    </div>
+                    <!--Average price searching-->
+                    <div class="form-group">
+                    <input value="@(propertyQueryFilter.Rooms == 0 ? "" : propertyQueryFilter.Rooms)" type="text" placeholder="Bedrooms number" name="Rooms" class="form-control">
+                </div>
+                 <div class="form-group">
+                    <input value="@(propertyQueryFilter.Bathrooms == 0 ? "" : propertyQueryFilter.Bathrooms)" type="text" placeholder="Bathrooms number" name="Bathrooms" class="form-control">
+ <!-- Minimum price input -->
+<div class="form-group">
+    <input value="@(propertyQueryFilter.MinPrice == 0 ? "" : propertyQueryFilter.MinPrice)" type="number" placeholder="Minimum Price" name="MinPrice" class="form-control" id="minPrice">
+</div>
+
+<!-- Maximum price input -->
+<div class="form-group">
+    <input value="@(propertyQueryFilter.MaxPrice == 0 ? "" : propertyQueryFilter.MaxPrice)" type="number" placeholder="Maximum Price" name="MaxPrice" class="form-control" id="maxPrice">
+</div>
+                 </div>
+                <div>
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+            </form>
+        </div>
+        </div>
+        <div class="container mt-5" style="padding-left:0;">
+            @if (properties.Count > 0)
+            {
+                @foreach (var property in properties)
+                {
+                <a href="/home/details/@property.Id" class="card-house">
+                    <div class="header-house">
+                        <img src="@property.Pictures[0].Picture" alt="house" />
+                    </div>
+                    <div class="description-house">
+                        <div class="title">
+                            <h2>@property.Name</h2>
+                                <p style="margin:0; margin-right:5px;">Code: <strong>@property.Code</strong></p>
+                        </div>
+                        <div class="description">
+                            <p>@property.Description</p>
+                        </div>
+                        <div >
+                            <p><b>Tipo de venta</b></p>
+                            <p>@property.SalesTypes.Name</p>
+                        </div>
+                                 <div>
+                                    <p><b>Tipo de Propiedad</b></p>
+                                    <p>@property.PropertyTypes.Name</p>
+                                </div>
+                        <div class="characteristics">
+                            <div class="tag-house">
+                                <i class="fa-solid fa-bed" style="font-size:15px"></i>
+                                <p>@property.Rooms</p>
+                            </div>
+                            <div class="tag-house">
+                                <i class="fa-solid fa-bath"></i>
+                                <p>@property.Bathrooms</p>
+                            </div>
+                            <div class="tag-house">
+                                <i class="fa-solid fa-ruler"></i>
+                                <p>@property.Meters m2</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                            <div class="price">
+                                <p>@property.Price.ToString("C")</p>
+                            </div>
+                            @if (role != null && role == RoleTypes.Client)
+                            {
+                                @if(favorites != null)
+                                {
+                                    bool isFavorite = favorites!.Select(x => x.PropertyId).ToList().Contains(@property.Id);
+                                    <form method="post" asp-controller="Favorite" asp-action=@(isFavorite?"RemoveFavorite":"AddFavorite")>
+                                        @if(isFavorite)
+                                        {
+                                            <input type="hidden" name="favoriteId" value="@favorites!.FirstOrDefault(x => x.PropertyId == @property.Id)!.Id" />
+                                        }
+                                        <input type="hidden" name="PropertyId" value="@property.Id" />
+                                        <button type="submit" class="btn btn-primary">@(!isFavorite ? "Add to favorites" : "Remove from favorites")</button>
+                                    </form>
+                                }
+                            }
+                        </div>
+                </a>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+                            <script>
+     $(document).ready(function() {
+        var minPriceInput = $('#minPrice');
+        var maxPriceInput = $('#maxPrice');
+
+        // Store the initial values
+        var previousMinPrice = minPriceInput.val();
+        var previousMaxPrice = maxPriceInput.val();
+
+        minPriceInput.on('blur', function() {
+            var minPrice = parseFloat(minPriceInput.val());
+            var maxPrice = parseFloat(maxPriceInput.val());
+
+            if (minPrice > maxPrice) {
+                alert('Minimum Price cannot be greater than Maximum Price.');
+                minPriceInput.val(previousMinPrice); // Revert to previous value
+            } else {
+                previousMinPrice = minPrice; // Update the previous value
+            }
+        });
+
+        maxPriceInput.on('blur', function() {
+            var minPrice = parseFloat(minPriceInput.val());
+            var maxPrice = parseFloat(maxPriceInput.val());
+
+            if (maxPrice < minPrice) {
+                alert('Maximum Price cannot be less than Minimum Price.');
+                maxPriceInput.val(previousMaxPrice); // Revert to previous value
+            } else {
+                previousMaxPrice = maxPrice; // Update the previous value
+            }
+        });
+    });
+
+
+
+</script>

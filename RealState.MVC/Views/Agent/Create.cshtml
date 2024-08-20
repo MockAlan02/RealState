@@ -1,0 +1,247 @@
+﻿@using RealState.Application.ViewModel.Property
+@model PropertSaveViewModel
+@{
+   
+    Layout = "~/Views/Shared/_Layoutproperty.cshtml";
+    List<PropertyTypeViewModel> propertyTypes = ViewBag.PropertyTypes;
+    List<SalesTypeViewModel> salesTypes = ViewBag.SalesTypes;
+    List<UpgradesViewModel> upgrades = ViewBag.Upgrades;
+}
+
+<main class="section-production">
+    <section>
+        <div class="title">
+            @if (Model!.Id != Guid.Empty)
+            {
+                <h1>Edit Property</h1>
+            }
+            else
+            {
+                <h1>Create Property</h1>
+            }
+        </div>
+        <form asp-controller="Agent" asp-action="@(Model!.Id != Guid.Empty ? "update" : "create")" method="post" enctype="multipart/form-data">
+            <!-- Section 1 -->
+            @if (Model!.Id != Guid.Empty)
+            {
+                <input type="hidden" asp-for="Id" value="@Model.Id" />
+            }
+            <div class="form-section" id="section-1">
+                <div class="group">
+                    <label for="Name">Name</label>
+                    <input type="text" asp-for="Name" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="group">
+                    <label for="saleType">Sale Type</label>
+                    <select id="SalesTypeId" asp-for="SalesTypeId">
+                        @{
+                            if (salesTypes != null)
+                            {
+
+                               if (salesTypes.Count != 0)
+                                {
+                        <option selected disabled>Choose...</option>
+                        }
+                                foreach (var item in salesTypes)
+                                {
+                                    if (item.Id == Model.SalesTypeId)
+                                    {
+                                        <option value="@item.Id" selected>@item.Name</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@item.Id">@item.Name</option>
+                                    }
+                                }
+                            }
+                        }
+                    </select>
+                    @if (salesTypes.Count == 0)
+                    {
+                    <span class="text-danger">There are no avalible sales types. You cannot create a property</span>
+                    }
+                    <span asp-validation-for="SalesTypeId" class="text-danger"></span>
+                </div>
+                <div class="group">
+                    <label for="propertyPrice">Property Price</label>
+                    <input type="number" id="propertyPrice" asp-for="Price" placeholder="2,500,000.00" />
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+                <div class="group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="Description" rows="4" cols="60" asp-for="Description"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+                <div class="group">
+                    <label for="area">Area</label>
+                    <input type="number" asp-for="Meters" placeholder="200.5" />
+                    <span asp-validation-for="Meters" class="text-danger"></span>
+                </div>
+                <div class="group">
+                    <label for="rooms">Rooms</label>
+                    <input type="number" id="rooms" name="Rooms" placeholder="5" asp-for="Rooms" />
+                    <span asp-validation-for="Rooms" class="text-danger"></span>
+                </div>
+                <div class="group">
+                    <label for="bathrooms">Bathrooms</label>
+                    <input type="number" id="bathrooms" asp-for="Bathrooms" name="Bathrooms" placeholder="5" />
+                    <span asp-validation-for="Bathrooms" class="text-danger"></span>
+                </div>
+            </div>
+
+            <!-- Section 2 -->
+            <div class="form-section" id="section-2" style="display:none;">
+                <div class="group">
+                    <label>Property Type</label>
+                    <select id="PropertyTypeId" asp-for="PropertyTypeId">
+                        @{
+                            if (propertyTypes != null)
+                            {
+                                if (propertyTypes.Count != 0)
+                        {
+
+                        <option selected disabled>Choose...</option>
+                        }
+                                foreach (var item in propertyTypes)
+                                {
+                                    if (item.Id == Model.PropertyTypeId)
+                                    {
+                                        <option value="@item.Id" selected>@item.Name</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@item.Id">@item.Name</option>
+                                    }
+                                }
+                            }
+                        }
+                    </select>
+                    @if (propertyTypes.Count == 0)
+                        {
+                    <span class="text-danger">There are no avalible property types. You cannot create a property</span>
+                        }
+                    <span asp-validation-for="PropertyTypeId" class="text-danger"></span>
+                </div>
+                <div class="upgrades-container">
+                    <div class="group">
+                        <label for="Updagre">Upgrade Type</label>
+                        <select id="UpgradeId" asp-for="UpgradeId" multiple>
+                            @{
+                                if (upgrades != null)
+                                {
+                                    if (upgrades.Count != 0)
+                                    {
+                                        
+                            <option value="" disabled selected>Choose...</option>
+                                        }
+                                    foreach (var item in upgrades)
+                                    {
+                                        if (Model.UpgradeId.Any(x => x == item.Id))
+                                        {
+                                            <option class="option-pressed" value="@item.Id" selected>@item.Name
+                                            </option>
+                                        }
+                                        else
+                                        {
+                                            <option class="option-pressed" value="@item.Id">@item.Name</option>
+                                        }
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+                    @if (upgrades.Count == 0)
+                    {
+                    <span class="text-danger">There are no avalible upgrades. You cannot create a property</span>
+                                            }
+                    <span asp-validation-for="UpgradeId" class="text-danger"></span>
+                </div>
+                <div class="file-container">
+                    <input type="file" id="file-input" accept="image/png, image/gif, image/jpeg" multiple asp-for="Pictures" />
+                    <span asp-validation-for="Pictures" class="text-danger"></span>
+                    <label for="file-input"><i class="fa-solid fa-upload"></i> Upload Images</label>
+                    @if (Model.PicturesUrl == null)
+                    {
+                        <p id="num-files">No files selected</p>
+                    }
+                    else
+                    {
+                        <p id="num-files">@Model.PicturesUrl.Count files selected</p>
+                        <div id="file-preview">
+                            @foreach (var item in Model.PicturesUrl)
+                            {
+                                
+                                <img src="@item" alt="@item" />
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="form-navigation">
+                <a href="/agent/index" class="btn btn-primary" id="btn-out">Back</a>
+                <button type="button" id="next" class="btn btn-primary">Next</button>
+                <button type="button" id="previous" class="btn btn-primary" style="display:none;">Previous</button>
+                <button type="submit" class="btn btn-primary" style="display:none;">Save</button>
+            </div>
+        </form>
+    </section>
+
+    <aside>
+        <img src="~/pictures/building1.jpg" alt="Building Image" />
+    </aside>
+</main>
+
+<script>
+    $(document).ready(function () {
+        $("#next").click(function () {
+            $("#btn-out").hide();
+            $("#section-1").hide();
+            $("#section-2").show();
+            $("#next").hide();
+            $("#previous").show();
+            $("button[type='submit']").show();
+        });
+
+        $("#previous").click(function () {
+            $("#btn-out").show();
+            $("#section-2").hide();
+            $("#section-1").show();
+            $("#previous").hide();
+            $("#next").show();
+            $("button[type='submit']").hide();
+        });
+    });
+
+    $("#file-input").change(function () {
+        var files = $(this)[0].files;
+        var numFiles = files.length;
+        var preview = $("#file-preview");
+
+        preview.empty();
+        $("#num-files").text(numFiles + " files selected");
+
+        for (var i = 0; i < numFiles; i++) {
+            var file = files[i];
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                var img = $("<img>").attr("src", e.target.result);
+                preview.append(img);
+            };
+
+            reader.readAsDataURL(file);
+        }
+    });
+     $('.option-pressed').mousedown(function(e) {
+         e.preventDefault();
+         $(this).prop('selected', !$(this).prop('selected'));
+         return false;
+});
+
+
+
+
+</script>

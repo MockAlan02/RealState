@@ -1,0 +1,57 @@
+﻿@using RealState.Application.DTOs.User
+@{
+    Layout = "~/Views/Shared/_LayoutMaintance.cshtml";
+    var developers = ViewData["Developers"] as List<ApplicationUserDTO> ?? new();
+}
+
+<div class="section-group2" >
+    <div class="center-div">
+        <div class=" mb-2" style="width:10%;">
+            <a href="/DeveloperMaintenance/Create" class="btn btn-secondary">Crear Developer</a>
+        </div>
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th class="text-center">Identificador</th>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Usuario</th>
+                        <th>Email</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+				@foreach (var item in developers)
+				{
+					<tr>
+						<td class="text-center">402-5874693-1</td>
+						<td>@item.FirstName</td>
+						<td>@item.LastName</td>
+						<td>@item.UserName</td>
+						<td class="text-right">@item.Email</td>
+						<td style=" z-index: 1050;">
+							<div class="dropdown" style="z-index: 1050;">
+								<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+									Acciones
+								</button>
+								<ul class="dropdown-menu dropdown-menu-end" style="z-index:1200" aria-labelledby="dropdownMenuButton">
+									@if (item.Active)
+									{
+										<li><a class="dropdown-item" asp-controller="DeveloperMaintenance" asp-action="ChangeStatus" asp-route-userId="@item.Id" asp-route-status="false">Desactivate</a></li>
+									}
+									else
+									{
+										<li><a class="dropdown-item" asp-controller="DeveloperMaintenance" asp-action="ChangeStatus" asp-route-userId="@item.Id" asp-route-status="true">Activate</a></li>
+									}
+									<li><a class="dropdown-item" asp-controller="DeveloperMaintenance" asp-action="Update" asp-route-id="@item.Id">Edit</a></li>
+								</ul>
+							</div>
+						</td>
+					</tr>
+				}
+                </tbody>
+            </table>
+        </div>
+
+</div>

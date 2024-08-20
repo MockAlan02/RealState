@@ -1,0 +1,87 @@
+﻿@using RealState.Application.Enums
+@using System.Security.Claims
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - RealState.MVC</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Component.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Authentication.css" asp-append-version="true" />
+    <script src="https://cdn.jsdelivr.net/npm/@@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+      <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+         <script src="~/js/site.js" asp-append-version="true"></script>
+ <script src="
+https://cdn.jsdelivr.net/npm/sweetalert2@11.12.3/dist/sweetalert2.all.min.js
+"></script>
+    <link rel="stylesheet" href="~/RealState.MVC.styles.css" asp-append-version="true" />
+      <script src="~/lib/jquery/dist/jquery.min.js"></script>
+</head>
+<body style="centrar">
+    <header class="header-area overlay">
+        <nav class="navbar navbar-expand-md navbar-white">
+            <div class="container">
+                <a href="#" class="navbar-brand text-dark"><strong>RealStateRD.com</strong></a>
+
+                <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#main-nav">
+                    <span class="menu-icon-bar"></span>
+                    <span class="menu-icon-bar"></span>
+                    <span class="menu-icon-bar"></span>
+                </button>
+
+                <div id="main-nav" class="collapse navbar-collapse text-dark" style="color:black;">
+                    <ul class="navbar-nav ml-auto">
+                        <li><a href="/home" class="nav-item nav-link active text-dark">Home</a></li>
+
+
+                        @{
+                            if (User!.Identity!.IsAuthenticated)
+                            {
+
+                                var roleClaim = User.Identities.FirstOrDefault()?.FindFirst(ClaimTypes.Role)?.Value;
+                                RoleTypes userRole;
+                                var isRoleParsed = Enum.TryParse(roleClaim, out userRole);
+
+                                if (isRoleParsed && userRole == RoleTypes.Admin)
+                                {
+                                    <li class="dropdown">
+                                        <a href="/AdminMaintenance/Index" class="nav-item nav-link text-dark" data-toggle="dropdown">Admin</a>
+                                    </li>
+                                    <li><a href="/AgentMaintenance/Index" class="nav-item nav-link text-dark">Agent</a></li>
+                                    <li><a href="/DeveloperMaintenance/Index" class="nav-item nav-link text-dark">Developer</a></li>
+                                    <li><a href="/Upgrade/Index" class="nav-item nav-link text-dark">Upgrades</a></li>
+                                    <li><a href="/SalesType/Index" class="nav-item nav-link text-dark">Sales type</a></li>
+                                    <li><a href="/PropertyType/Index" class="nav-item nav-link text-dark">Property types</a></li>
+                                }
+                                <li><a href="/Account/LogOut" class="nav-item nav-link text-dark">Logout</a></li>
+                            }
+                            else
+                            {
+
+                                <li class="dropdown">
+                                    <a href="/Account/Register" class="nav-item nav-link text-dark" data-toggle="dropdown">Meet App</a>
+                                </li>
+                                <li><a href="/Account/Signin" class="nav-item nav-link text-dark">Login</a></li>
+
+                            }
+                        }
+
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        @RenderBody()
+    </div>
+
+
+  
+ 
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
